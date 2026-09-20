@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report to Susanta – Enterprise Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #0b132b; color: #e0e1dd; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .glass-panel { background: rgba(28, 37, 65, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .tab-active { border-bottom: 2px solid #48cae4; color: #48cae4; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- TOP BAR -->
+    <header class="glass-panel sticky top-0 z-50 px-6 py-4 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center gap-3">
+            <div class="bg-teal-500 text-slate-950 p-2.5 rounded-xl font-black flex items-center justify-center">
+                <i class="fa-solid fa-clipboard-check text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold text-white tracking-wide">Report to Susanta</h1>
+                <p class="text-xs text-slate-400">Enterprise Management System</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <div id="conn-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-800 text-teal-400 border border-teal-500/20 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
+                <span>Connected</span>
+            </div>
+            <div id="user-profile-badge" class="hidden items-center gap-3 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
+                <img id="user-avatar" src="" class="w-8 h-8 rounded-full object-cover border border-slate-600">
+                <div class="text-left">
+                    <p id="user-display-name" class="text-xs font-bold text-white"></p>
+                    <p id="user-display-role" class="text-[10px] uppercase font-bold text-teal-400 tracking-wider"></p>
+                </div>
+                <button id="btn-logout" class="ml-2 text-slate-400 hover:text-red-400 text-sm transition-colors" title="Sign Out">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-1 p-6 max-w-7xl w-full mx-auto">
+        <!-- AUTH CONTAINER -->
+        <div id="auth-section" class="max-w-md mx-auto my-12 glass-panel p-8 rounded-2xl shadow-2xl border border-slate-700/50">
+            <!-- PORTAL TABS -->
+            <div class="flex border-b border-slate-700 mb-6">
+                <button id="tab-emp-login" onclick="switchAuthTab('emp-login')" class="flex-1 py-3 border-b-2 border-teal-500 text-teal-400 font-semibold flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-solid fa-user"></i> Employee
+                </button>
+                <button id="tab-emp-signup" onclick="switchAuthTab('emp-signup')" class="flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-semibold flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-solid fa-user-plus"></i> Sign Up
+                </button>
+                <button id="tab-admin-login" onclick="switchAuthTab('admin-login')" class="flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-semibold flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-solid fa-user-shield"></i> Admin
+                </button>
+            </div>
+
+            <!-- EMPLOYEE LOGIN FORM -->
+            <form id="form-emp-login" onsubmit="handleEmployeeLogin(event)" class="space-y-4">
+                <div>
+                    <h2 class="text-xl font-bold text-white mb-1">Employee Portal Login</h2>
+                    <p class="text-xs text-slate-400 mb-4">Access your workspace and submit progress reports.</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Email Address</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-envelope absolute left-3 top-3 text-slate-500 text-sm"></i>
+                        <input type="email" id="emp-email" required class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-teal-500" placeholder="employee@company.com">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-3 top-3 text-slate-500 text-sm"></i>
+                        <input type="password" id="emp-password" required class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-teal-500" placeholder="••••••••">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-teal-500/20 mt-2">
+                    Sign In <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </form>
+
+            <!-- EMPLOYEE SIGNUP FORM -->
+            <form id="form-emp-signup" onsubmit="handleEmployeeSignUp(event)" class="space-y-4 hidden">
+                <div>
+                    <h2 class="text-xl font-bold text-white mb-1">Employee Registration</h2>
+                    <p class="text-xs text-slate-400 mb-4">First-time signup required before portal access.</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Full Name</label>
+                    <input type="text" id="signup-name" required class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:border-teal-500" placeholder="John Doe">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Registered ID / Reg Number</label>
+                    <input type="text" id="signup-regno" required class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:border-teal-500" placeholder="EMP-2026-001">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Email Address</label>
+                    <input type="email" id="signup-email" required class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:border-teal-500" placeholder="john@company.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
+                    <input type="password" id="signup-password" required class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:border-teal-500" placeholder="••••••••">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Profile Photo File (or Photo URL)</label>
+                    <input type="file" id="signup-photo-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-teal-400 hover:file:bg-slate-700 mb-2">
+                    <input type="url" id="signup-photo-url" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2 px-4 text-xs text-white focus:outline-none focus:border-teal-500" placeholder="Optional image web link...">
+                </div>
+                <button type="submit" class="w-full bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-teal-500/20 mt-2">
+                    Create Account & Register <i class="fa-solid fa-user-check ml-1"></i>
+                </button>
+            </form>
+
+            <!-- ADMIN LOGIN FORM -->
+            <form id="form-admin-login" onsubmit="handleAdminLogin(event)" class="space-y-4 hidden">
+                <div>
+                    <h2 class="text-xl font-bold text-amber-400 mb-1">Master Admin Login</h2>
+                    <p class="text-xs text-slate-400 mb-4">Susanta's Administrative Access Control Vault.</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Admin Email ID</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user-shield absolute left-3 top-3 text-slate-500 text-sm"></i>
+                        <input type="email" id="admin-email" required class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="admin@susanta.com">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Master Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-key absolute left-3 top-3 text-slate-500 text-sm"></i>
+                        <input type="password" id="admin-password" required class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-amber-500" placeholder="••••••••">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 mt-2">
+                    Admin Authenticate <i class="fa-solid fa-shield-halved ml-1"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- DASHBOARD CONTAINER (HIDDEN UNTIL LOGIN) -->
+        <div id="dashboard-section" class="hidden space-y-6">
+            <!-- DASHBOARD NAV TABS -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <button id="btn-dash-completion" onclick="switchDashTab('tab-completion')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-teal-600 text-white flex items-center gap-2 shadow-md">
+                        <i class="fa-solid fa-chart-line"></i> Work Progress
+                    </button>
+                    <button id="btn-dash-vault" onclick="switchDashTab('tab-vault')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-vault"></i> Document Vault <span id="vault-badge-admin" class="hidden bg-amber-500 text-slate-950 text-[10px] px-1.5 py-0.2 rounded-md font-bold">ADMIN ONLY</span>
+                    </button>
+                    <button id="btn-dash-broadcasts" onclick="switchDashTab('tab-broadcasts')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-bullhorn"></i> Notice Board
+                    </button>
+                    <button id="btn-dash-attendance" onclick="switchDashTab('tab-attendance')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-clock font-normal"></i> Attendance Record
+                    </button>
+                </div>
+            </div>
+
+            <!-- VIEW 1: WORK COMPLETION DASHBOARD -->
+            <div id="view-completion" class="space-y-6">
+                <!-- UPDATE MY PROGRESS CARD -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-700/50">
+                    <h3 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-teal-400"></i> Update Your Work Completion Percentage
+                    </h3>
+                    <div class="flex items-center gap-6">
+                        <input type="range" id="my-completion-slider" min="0" max="100" value="0" class="flex-1 accent-teal-400 h-2 bg-slate-800 rounded-lg cursor-pointer">
+                        <span id="my-completion-val" class="text-xl font-black text-teal-400 min-w-[60px] text-right">0%</span>
+                        <button onclick="updateMyCompletion()" class="bg-teal-500 hover:bg-teal-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md">
+                            Save Progress
+                        </button>
+                    </div>
+                    <!-- COLOR CODED PREVIEW BAR -->
+                    <div class="w-full bg-slate-900 rounded-full h-2.5 mt-4 overflow-hidden border border-slate-800">
+                        <div id="my-completion-preview-bar" class="h-full rounded-full transition-all duration-300 bg-red-500" style="width: 0%;"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                        <span>0% (Needs Work)</span>
+                        <span>30% - 70% (In Progress)</span>
+                        <span>100% (Completed)</span>
+                    </div>
+                </div>
+
+                <!-- ALL EMPLOYEES PROGRESS GRID -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-700/50">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-users-line text-teal-400"></i> Organization Work Completion Overview
+                        </h3>
+                        <span id="total-employees-count" class="text-xs bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700">0 Team Members</span>
+                    </div>
+                    <div id="employees-completion-list" class="space-y-4">
+                        <!-- Dynamic Progress Bars Loaded Here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 2: DOCUMENT VAULT (ONLY MASTER ADMIN CAN VIEW/DOWNLOAD) -->
+            <div id="view-vault" class="hidden space-y-6">
+                <!-- EMPLOYEE UPLOAD BOX -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-700/50">
+                    <h3 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-up text-teal-400"></i> Submit Document to Susanta Vault
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4">Files uploaded here are strictly confidential and readable only by Master Admin Susanta.</p>
+                    <form onsubmit="handleDocumentUpload(event)" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Document Title</label>
+                                <input type="text" id="doc-title" required class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2 px-4 text-xs text-white focus:outline-none focus:border-teal-500" placeholder="Daily Task Report...">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Select File (PDF, Images, Docs)</label>
+                                <input type="file" id="doc-file" required class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-teal-400 hover:file:bg-slate-700">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Notes / Summary</label>
+                            <textarea id="doc-notes" rows="2" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2 px-4 text-xs text-white focus:outline-none focus:border-teal-500" placeholder="Additional details regarding this report..."></textarea>
+                        </div>
+                        <button type="submit" id="btn-doc-upload" class="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs transition-all shadow-md">
+                            Upload Document Securely <i class="fa-solid fa-lock ml-1"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- ADMIN VIEW VAULT TABLE (RESTRICTED TO ADMIN ONLY) -->
+                <div id="vault-access-denied" class="glass-panel p-8 rounded-2xl text-center border border-red-900/30">
+                    <i class="fa-solid fa-shield-halved text-red-400 text-4xl mb-3"></i>
+                    <h4 class="text-base font-bold text-white">Master Admin Restricted Vault</h4>
+                    <p class="text-xs text-slate-400 max-w-md mx-auto mt-1">Uploaded employee documents are encrypted and visible only to Master Admin Susanta.</p>
+                </div>
+
+                <div id="vault-table-wrapper" class="hidden glass-panel p-6 rounded-2xl border border-amber-500/20">
+                    <h3 class="text-sm font-bold text-amber-400 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-folder-open"></i> Master Vault Storage (Admin Direct Access)
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-900/90 text-slate-400 uppercase font-semibold text-[10px]">
+                                <tr>
+                                    <th class="p-3">Document Title</th>
+                                    <th class="p-3">Submitted By</th>
+                                    <th class="p-3">Upload Date</th>
+                                    <th class="p-3">File Size</th>
+                                    <th class="p-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vault-list-body" class="divide-y divide-slate-800">
+                                <!-- Vault Documents Injected Here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 3: NOTICE BOARD / BROADCASTS -->
+            <div id="view-broadcasts" class="hidden space-y-6">
+                <!-- ADMIN CREATE NOTICE (READ-WRITE ONLY FOR ADMIN) -->
+                <div id="admin-broadcast-form" class="hidden glass-panel p-6 rounded-2xl border border-amber-500/30">
+                    <h3 class="text-sm font-bold text-amber-400 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square"></i> Create Official Announcement (Admin Write Access)
+                    </h3>
+                    <form onsubmit="handleCreateBroadcast(event)" class="space-y-3">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div class="md:col-span-2">
+                                <input type="text" id="broadcast-title" required class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2 px-4 text-xs text-white focus:outline-none focus:border-amber-500" placeholder="Notice Title...">
+                            </div>
+                            <div>
+                                <select id="broadcast-priority" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2 px-4 text-xs text-white focus:outline-none focus:border-amber-500">
+                                    <option value="Normal">Priority: Normal</option>
+                                    <option value="Important">Priority: Important</option>
+                                    <option value="Urgent">Priority: Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+                        <textarea id="broadcast-content" required rows="2" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2 px-4 text-xs text-white focus:outline-none focus:border-amber-500" placeholder="Write announcement details for all employees..."></textarea>
+                        <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-md">
+                            Post Announcement <i class="fa-solid fa-paper-plane ml-1"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- ALL EMPLOYEES READ ONLY BROADCAST FEED -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-700/50">
+                    <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-bell text-teal-400"></i> Official Notice Board (Read Only)
+                    </h3>
+                    <div id="broadcasts-feed" class="space-y-4">
+                        <!-- Dynamic Notices Injected Here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 4: ATTENDANCE LOGS -->
+            <div id="view-attendance" class="hidden glass-panel p-6 rounded-2xl border border-slate-700/50">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-teal-400"></i> Daily Attendance Log Records
+                        </h3>
+                        <p class="text-xs text-slate-400">Logins occurring post 11:59 PM are automatically flagged as Overnight / Late Records.</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-900/90 text-slate-400 uppercase font-semibold text-[10px]">
+                            <tr>
+                                <th class="p-3">Employee Name</th>
+                                <th class="p-3">Role</th>
+                                <th class="p-3">Login Timestamp</th>
+                                <th class="p-3">Attendance Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-list-body" class="divide-y divide-slate-800">
+                            <!-- Attendance Rows Injected Here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ADMIN OVERRIDE MODAL -->
+    <div id="modal-override" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-panel max-w-sm w-full p-6 rounded-2xl border border-amber-500/30 shadow-2xl space-y-4">
+            <h4 class="text-sm font-bold text-amber-400 flex items-center gap-2">
+                <i class="fa-solid fa-sliders"></i> Admin Progress Override
+            </h4>
+            <p class="text-xs text-slate-300">Adjust completion status for: <span id="modal-target-name" class="font-bold text-white"></span></p>
+            <input type="hidden" id="modal-target-uid">
+            <div class="flex items-center gap-4">
+                <input type="range" id="modal-completion-slider" min="0" max="100" class="flex-1 accent-amber-400 h-2 bg-slate-800 rounded-lg cursor-pointer" oninput="document.getElementById('modal-slider-val').innerText = this.value + '%'">
+                <span id="modal-slider-val" class="text-sm font-bold text-amber-400">0%</span>
+            </div>
+            <div class="flex items-center gap-2 pt-2">
+                <button onclick="closeOverrideModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 rounded-xl text-xs transition-all">Cancel</button>
+                <button onclick="saveAdminOverride()" class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 rounded-xl text-xs transition-all">Save Override</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DOCUMENT PREVIEW MODAL -->
+    <div id="modal-doc-preview" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-panel max-w-2xl w-full p-6 rounded-2xl border border-slate-700 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h4 id="preview-title" class="text-sm font-bold text-white">Document Preview</h4>
+                <button onclick="closePreviewModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <div id="preview-content" class="max-h-[60vh] overflow-y-auto p-4 bg-slate-950 rounded-xl text-center">
+                <!-- Direct Preview Injected Here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm"></div>
+
+    <footer class="py-4 text-center text-xs text-slate-600 border-t border-slate-900">
+        &copy; 2026 Report to Susanta. Secure Enterprise Workspace. All Rights Reserved.
+    </footer>
+
+    <!-- FIREBASE MODULE SCRIPT -->
+    <!-- FIREBASE MODULE SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, addDoc, onSnapshot, deleteDoc, updateDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+
+        // YOUR FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4itXAu7BJ2XRk4zftH3lsOToG_DTzdwE",
+            authDomain: "report-to-susanta.firebaseapp.com",
+            projectId: "report-to-susanta",
+            storageBucket: "report-to-susanta.firebasestorage.app",
+            messagingSenderId: "814027285469",
+            appId: "1:814027285469:web:7acdf2c16b2ace4a3fcc34",
+            measurementId: "G-8GL19DYZCF"
+        };
+
+        const appId = "report-to-susanta-app";
+
+        // INITIALIZE FIREBASE & SERVICES
+        let app, db, analytics;
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            analytics = getAnalytics(app);
+        } catch (e) {
+            console.error("Firebase init error:", e);
+        }
+
+        // LOCAL APP STATE
+        let currentUserData = null;
+        let unsubscribeUsers = null;
+        let unsubscribeVault = null;
+        let unsubscribeBroadcasts = null;
+        let unsubscribeAttendance = null;
+
+        // PATH HELPERS FOR FIRESTORE RULES COMPLIANCE
+        const getPublicColl = (collName) => collection(db, 'artifacts', appId, 'public', 'data', collName);
+        const getPublicDoc = (collName, docId) => doc(db, 'artifacts', appId, 'public', 'data', collName, docId);
+
+        // TOAST NOTIFICATIONS
+        window.showToast = function(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgClass = type === 'success' ? 'bg-emerald-950 border-emerald-800 text-emerald-200' :
+                            type === 'error' ? 'bg-red-950 border-red-800 text-red-200' :
+                            type === 'amber' ? 'bg-amber-950 border-amber-800 text-amber-200' :
+                            'bg-slate-900 border-slate-700 text-slate-200';
+
+            const iconClass = type === 'success' ? 'fa-circle-check text-emerald-400' :
+                             type === 'error' ? 'fa-circle-exclamation text-red-400' :
+                             type === 'amber' ? 'fa-triangle-exclamation text-amber-400' :
+                             'fa-circle-info text-teal-400';
+
+            toast.className = `p-3.5 rounded-xl border text-xs shadow-xl flex items-center gap-3 transition-all duration-300 transform translate-y-2 opacity-0 ${bgClass}`;
+            toast.innerHTML = `<i class="fa-solid ${iconClass} text-base"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            requestAnimationFrame(() => { toast.classList.remove('translate-y-2', 'opacity-0'); });
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        };
+
+        // SECURE ADMIN SEEDING
+        async function ensureMasterAdminSeeded() {
+            try {
+                const adminDocRef = getPublicDoc('users', 'admin_susanta');
+                const adminSnap = await getDoc(adminDocRef);
+                if (!adminSnap.exists()) {
+                    await setDoc(adminDocRef, {
+                        uid: 'admin_susanta',
+                        name: 'Susanta (Master Admin)',
+                        regno: 'ADMIN-MASTER',
+                        email: 'admin@susanta.com',
+                        password: 'admin123',
+                        role: 'admin',
+                        photoUrl: 'https://placeholder.co/100x100/d97706/ffffff?text=ADMIN',
+                        completion: 100,
+                        createdAt: new Date().toISOString()
+                    });
+                }
+            } catch (e) {
+                console.error("Admin seed error:", e);
+            }
+        }
+
+        // TAB SWITCHING (AUTHENTICATION PORTAL)
+        window.switchAuthTab = function(tabName) {
+            const tabs = ['emp-login', 'emp-signup', 'admin-login'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                const form = document.getElementById(`form-${t}`);
+                if (t === tabName) {
+                    btn.className = `flex-1 py-3 border-b-2 ${t === 'admin-login' ? 'border-amber-500 text-amber-400' : 'border-teal-500 text-teal-400'} font-semibold flex items-center justify-center gap-2 transition-all`;
+                    form.classList.remove('hidden');
+                } else {
+                    btn.className = "flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-semibold flex items-center justify-center gap-2 transition-all";
+                    form.classList.add('hidden');
+                }
+            });
+        };
+
+        // EMPLOYEE SIGN UP
+        window.handleEmployeeSignUp = async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value.trim();
+            const regno = document.getElementById('signup-regno').value.trim();
+            const email = document.getElementById('signup-email').value.trim().toLowerCase();
+            const password = document.getElementById('signup-password').value;
+            const photoUrlInput = document.getElementById('signup-photo-url').value.trim();
+            const photoFile = document.getElementById('signup-photo-file').files[0];
+
+            let photoUrl = photoUrlInput || `https://placeholder.co/100x100/0d9488/ffffff?text=${encodeURIComponent(name.charAt(0))}`;
+
+            try {
+                if (photoFile) {
+                    photoUrl = await readFileAsBase64(photoFile);
+                }
+                const uid = 'emp_' + Date.now();
+                const newUser = {
+                    uid,
+                    name,
+                    regno,
+                    email,
+                    password,
+                    role: 'employee',
+                    photoUrl,
+                    completion: 0,
+                    createdAt: new Date().toISOString()
+                };
+
+                await setDoc(getPublicDoc('users', uid), newUser);
+                showToast("Account created successfully! Logging you in...", "success");
+                loginUser(newUser);
+            } catch (err) {
+                console.error("Sign up error:", err);
+                showToast("Registration failed: " + err.message, "error");
+            }
+        };
+
+        // EMPLOYEE LOGIN
+        window.handleEmployeeLogin = async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('emp-email').value.trim().toLowerCase();
+            const password = document.getElementById('emp-password').value;
+
+            try {
+                const querySnap = await fetchUserByEmail(email);
+                if (!querySnap || querySnap.password !== password) {
+                    showToast("Invalid employee credentials.", "error");
+                    return;
+                }
+                if (querySnap.role === 'admin') {
+                    showToast("Please use the Master Admin login tab.", "amber");
+                    return;
+                }
+                showToast(`Welcome back, ${querySnap.name}!`, "success");
+                loginUser(querySnap);
+            } catch (err) {
+                console.error("Employee login error:", err);
+                showToast("Login error: " + err.message, "error");
+            }
+        };
+
+        // ADMIN LOGIN
+        window.handleAdminLogin = async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('admin-email').value.trim().toLowerCase();
+            const password = document.getElementById('admin-password').value;
+
+            try {
+                const fallbackUser = await fetchUserByEmail(email);
+                if (fallbackUser && fallbackUser.role === 'admin' && fallbackUser.password === password) {
+                    showToast("Authenticated as Master Admin!", "success");
+                    loginUser(fallbackUser);
+                    return;
+                }
+
+                showToast("Invalid Master Admin credentials.", "error");
+            } catch (err) {
+                console.error("Admin login error:", err);
+                showToast("Admin login failed: " + err.message, "error");
+            }
+        };
+
+        // UPDATED HELPER TO FETCH USER BY EMAIL FROM FIRESTORE
+        async function fetchUserByEmail(email) {
+            try {
+                const usersRef = getPublicColl('users');
+                const q = query(usersRef, where('email', '==', email));
+                const querySnapshot = await getDocs(q);
+                
+                if (!querySnapshot.empty) {
+                    return querySnapshot.docs[0].data();
+                }
+                return null;
+            } catch (err) {
+                console.error("Error querying user by email:", err);
+                return null;
+            }
+        }
+
+        // ATTENDANCE RECORDING
+        async function recordAttendance(user) {
+            try {
+                const now = new Date();
+                const hours = now.getHours();
+                const minutes = now.getMinutes();
+
+                let isLateOvernight = false;
+                if ((hours === 23 && minutes >= 59) || (hours >= 0 && hours < 5)) {
+                    isLateOvernight = true;
+                }
+
+                const statusTag = isLateOvernight ? "Late / Overnight Login (Post 11:59 PM)" : "Standard On-Time Login";
+                const attendanceRecord = {
+                    uid: user.uid,
+                    userName: user.name,
+                    userEmail: user.email,
+                    role: user.role,
+                    timestamp: now.toISOString(),
+                    formattedTime: now.toLocaleString(),
+                    isLateOvernight: isLateOvernight,
+                    statusTag: statusTag
+                };
+
+                await addDoc(getPublicColl('attendance'), attendanceRecord);
+                if (isLateOvernight) {
+                    showToast("Logged in after 11:59 PM. Flagged as Overnight Login.", "amber");
+                }
+            } catch (err) {
+                console.error("Error recording attendance:", err);
+            }
+        }
+
+        // LOGIN / LOGOUT STATE CONTROL
+        function loginUser(userData) {
+            currentUserData = userData;
+            sessionStorage.setItem('susanta_portal_user', JSON.stringify(userData));
+            recordAttendance(userData);
+            renderLoggedInState();
+        }
+
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            currentUserData = null;
+            sessionStorage.removeItem('susanta_portal_user');
+            if (unsubscribeUsers) unsubscribeUsers();
+            if (unsubscribeVault) unsubscribeVault();
+            if (unsubscribeBroadcasts) unsubscribeBroadcasts();
+            if (unsubscribeAttendance) unsubscribeAttendance();
+            renderLoggedOutState();
+            showToast("Signed out successfully.", "info");
+        });
+
+        function renderLoggedInState() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.remove('hidden');
+
+            const profileBadge = document.getElementById('user-profile-badge');
+            profileBadge.classList.remove('hidden');
+            profileBadge.classList.add('flex');
+
+            document.getElementById('user-avatar').src = currentUserData.photoUrl || 'https://placeholder.co/100x100/1e293b/38bdf8?text=U';
+            document.getElementById('user-display-name').innerText = currentUserData.name;
+            document.getElementById('user-display-role').innerText = currentUserData.role;
+            document.getElementById('user-display-role').className = currentUserData.role === 'admin' ? 
+                "text-[10px] uppercase font-bold text-amber-400 tracking-wider" : 
+                "text-[10px] uppercase font-bold text-teal-400 tracking-wider";
+
+            const slider = document.getElementById('my-completion-slider');
+            slider.value = currentUserData.completion || 0;
+            document.getElementById('my-completion-val').innerText = `${currentUserData.completion || 0}%`;
+            updatePreviewBar(currentUserData.completion || 0);
+
+            if (currentUserData.role === 'admin') {
+                document.getElementById('vault-badge-admin').classList.remove('hidden');
+                document.getElementById('admin-broadcast-form').classList.remove('hidden');
+                document.getElementById('vault-access-denied').classList.add('hidden');
+                document.getElementById('vault-table-wrapper').classList.remove('hidden');
+            } else {
+                document.getElementById('vault-badge-admin').classList.add('hidden');
+                document.getElementById('admin-broadcast-form').classList.add('hidden');
+                document.getElementById('vault-access-denied').classList.remove('hidden');
+                document.getElementById('vault-table-wrapper').classList.add('hidden');
+            }
+
+            initRealtimeListeners();
+        }
+
+        function renderLoggedOutState() {
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('dashboard-section').classList.add('hidden');
+            document.getElementById('user-profile-badge').classList.add('hidden');
+        }
+
+        // NAVIGATION TABS
+        window.switchDashTab = function(tabId) {
+            const tabs = ['tab-completion', 'tab-vault', 'tab-broadcasts', 'tab-attendance'];
+            const views = ['view-completion', 'view-vault', 'view-broadcasts', 'view-attendance'];
+            
+            tabs.forEach((t, idx) => {
+                const btn = document.getElementById(`btn-dash-${t.replace('tab-', '')}`);
+                const view = document.getElementById(views[idx]);
+                if (t === tabId) {
+                    btn.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-teal-600 text-white flex items-center gap-2 shadow-md";
+                    view.classList.remove('hidden');
+                } else {
+                    btn.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-2";
+                    view.classList.add('hidden');
+                }
+            });
+        };
+
+        // REALTIME LISTENERS
+        function initRealtimeListeners() {
+            if (unsubscribeUsers) unsubscribeUsers();
+            unsubscribeUsers = onSnapshot(getPublicColl('users'), (snapshot) => {
+                const employees = [];
+                snapshot.forEach(doc => {
+                    const u = doc.data();
+                    employees.push(u);
+                    if (currentUserData && currentUserData.uid === u.uid) {
+                        currentUserData.completion = u.completion;
+                    }
+                });
+                renderEmployeesCompletionList(employees);
+            }, (err) => console.error("Users listener error:", err));
+
+            if (unsubscribeVault) unsubscribeVault();
+            unsubscribeVault = onSnapshot(getPublicColl('vault'), (snapshot) => {
+                const docs = [];
+                snapshot.forEach(d => docs.push({ id: d.id, ...d.data() }));
+                renderVaultTable(docs);
+            }, (err) => console.error("Vault listener error:", err));
+
+            if (unsubscribeBroadcasts) unsubscribeBroadcasts();
+            unsubscribeBroadcasts = onSnapshot(getPublicColl('broadcasts'), (snapshot) => {
+                const notices = [];
+                snapshot.forEach(d => notices.push({ id: d.id, ...d.data() }));
+                notices.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                renderBroadcasts(notices);
+            }, (err) => console.error("Broadcasts listener error:", err));
+
+            if (unsubscribeAttendance) unsubscribeAttendance();
+            unsubscribeAttendance = onSnapshot(getPublicColl('attendance'), (snapshot) => {
+                const logs = [];
+                snapshot.forEach(d => logs.push(d.data()));
+                logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                renderAttendanceLogs(logs);
+            }, (err) => console.error("Attendance listener error:", err));
+        }
+
+        function getProgressBarColorClass(percent) {
+            if (percent < 30) return 'bg-red-500';
+            if (percent <= 70) return 'bg-amber-500';
+            return 'bg-emerald-500';
+        }
+
+        function updatePreviewBar(val) {
+            const bar = document.getElementById('my-completion-preview-bar');
+            bar.style.width = `${val}%`;
+            bar.className = `h-full rounded-full transition-all duration-300 ${getProgressBarColorClass(val)}`;
+        }
+
+        document.getElementById('my-completion-slider').addEventListener('input', (e) => {
+            document.getElementById('my-completion-val').innerText = `${e.target.value}%`;
+            updatePreviewBar(e.target.value);
+        });
+
+        window.updateMyCompletion = async function() {
+            if (!currentUserData) return;
+            const val = parseInt(document.getElementById('my-completion-slider').value, 10);
+            
+            try {
+                const userRef = getPublicDoc('users', currentUserData.uid);
+                await updateDoc(userRef, { completion: val });
+                currentUserData.completion = val;
+                sessionStorage.setItem('susanta_portal_user', JSON.stringify(currentUserData));
+                showToast(`Completion status updated to ${val}%`, "success");
+            } catch (e) {
+                try {
+                    await setDoc(getPublicDoc('users', currentUserData.uid), { completion: val }, { merge: true });
+                    showToast(`Completion status updated to ${val}%`, "success");
+                } catch (e2) {
+                    showToast("Failed to update status: " + e2.message, "error");
+                }
+            }
+        };
+
+        function renderEmployeesCompletionList(employees) {
+            const listContainer = document.getElementById('employees-completion-list');
+            document.getElementById('total-employees-count').innerText = `${employees.length} Team Members`;
+            
+            if (employees.length === 0) {
+                listContainer.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-4">No employee records found.</p>`;
+                return;
+            }
+
+            listContainer.innerHTML = employees.map(emp => {
+                const percent = emp.completion || 0;
+                const barColor = getProgressBarColorClass(percent);
+                const isMe = currentUserData && currentUserData.uid === emp.uid;
+                const isAdmin = currentUserData && currentUserData.role === 'admin';
+
+                return `
+                    <div class="bg-slate-900/80 border ${isMe ? 'border-teal-500/50' : 'border-slate-800'} p-4 rounded-xl space-y-2">
+                        <div class="flex items-center justify-between text-xs">
+                            <div class="flex items-center gap-3">
+                                <img src="${emp.photoUrl || 'https://placeholder.co/100x100/1e293b/38bdf8?text=U'}" class="w-7 h-7 rounded-full object-cover border border-slate-700">
+                                <div>
+                                    <span class="font-bold text-white">${escapeHtml(emp.name)}</span>
+                                    ${isMe ? '<span class="ml-2 text-[10px] bg-teal-950 text-teal-400 px-2 py-0.5 rounded-full border border-teal-800 font-semibold">You</span>' : ''}
+                                    ${emp.role === 'admin' ? '<span class="ml-2 text-[10px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded-full border border-amber-800 font-semibold">Admin</span>' : ''}
+                                    <p class="text-[10px] text-slate-500">${escapeHtml(emp.regno || emp.email)}</p>
+                                </div>
+                            </div>
+                            <span class="font-black text-sm text-white">${percent}%</span>
+                        </div>
+                        <div class="w-full bg-slate-950 rounded-full h-2.5 overflow-hidden border border-slate-800">
+                            <div class="h-full rounded-full transition-all duration-500 ${barColor}" style="width: ${percent}%;"></div>
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] text-slate-500">
+                            <span>Status: ${percent < 30 ? 'Incomplete' : percent <= 70 ? 'Moderate Progress' : 'Nearly Completed'}</span>
+                            ${isAdmin ? `<button onclick="openOverrideModal('${emp.uid}', '${escapeHtml(emp.name)}',${percent})" class="text-amber-400 hover:underline font-semibold"><i class="fa-solid fa-pen-to-square"></i> Admin Override</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.openOverrideModal = function(uid, name, currentVal) {
+            document.getElementById('modal-target-uid').value = uid;
+            document.getElementById('modal-target-name').innerText = name;
+            document.getElementById('modal-completion-slider').value = currentVal;
+            document.getElementById('modal-slider-val').innerText = `${currentVal}%`;
+            document.getElementById('modal-override').classList.remove('hidden');
+        };
+
+        window.closeOverrideModal = function() {
+            document.getElementById('modal-override').classList.add('hidden');
+        };
+
+        window.saveAdminOverride = async function() {
+            const uid = document.getElementById('modal-target-uid').value;
+            const newVal = parseInt(document.getElementById('modal-completion-slider').value, 10);
+
+            try {
+                await setDoc(getPublicDoc('users', uid), { completion: newVal }, { merge: true });
+                showToast("Override updated successfully!", "success");
+                closeOverrideModal();
+            } catch (err) {
+                showToast("Failed to save override: " + err.message, "error");
+            }
+        };
+
+        window.handleDocumentUpload = async function(e) {
+            e.preventDefault();
+            const title = document.getElementById('doc-title').value.trim();
+            const fileInput = document.getElementById('doc-file');
+            const notes = document.getElementById('doc-notes').value.trim();
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showToast("Please select a file to upload.", "amber");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const btn = document.getElementById('btn-doc-upload');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Encrypting & Uploading...`;
+
+            try {
+                const base64Data = await readFileAsBase64(file);
+                const newDoc = {
+                    title,
+                    notes,
+                    fileName: file.name,
+                    fileType: file.type || 'application/octet-stream',
+                    fileSize: (file.size / 20000000).toFixed(1) + ' KB',
+                    fileData: base64Data,
+                    uploaderUid: currentUserData.uid,
+                    uploaderName: currentUserData.name,
+                    createdAt: new Date().toISOString(),
+                    formattedDate: new Date().toLocaleString()
+                };
+
+                await addDoc(getPublicColl('vault'), newDoc);
+                showToast("Document submitted to Susanta's Vault successfully!", "success");
+                
+                document.getElementById('doc-title').value = '';
+                document.getElementById('doc-notes').value = '';
+                fileInput.value = '';
+            } catch (err) {
+                console.error("Doc upload error:", err);
+                showToast("Failed to upload document: " + err.message, "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `Securely Submit Document <i class="fa-solid fa-lock ml-1"></i>`;
+            }
+        };
+
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderVaultTable(docs) {
+            const body = document.getElementById('vault-list-body');
+            if (currentUserData && currentUserData.role !== 'admin') {
+                body.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-red-400">Restricted Access.</td></tr>`;
+                return;
+            }
+
+            if (docs.length === 0) {
+                body.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500 italic">No documents in the vault yet.</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = docs.map(d => `
+                <tr class="hover:bg-slate-900/50">
+                    <td class="p-3 font-semibold text-white">
+                        <div>${escapeHtml(d.title)}</div>
+                        <div class="text-[10px] text-slate-500">${escapeHtml(d.notes || '')}</div>
+                    </td>
+                    <td class="p-3">${escapeHtml(d.uploaderName)}</td>
+                    <td class="p-3 text-slate-400">${d.formattedDate || 'N/A'}</td>
+                    <td class="p-3 text-slate-400">${d.fileSize || 'N/A'}</td>
+                    <td class="p-3 text-right space-x-2">
+                        <button onclick="previewDoc('${d.id}')" class="bg-slate-800 hover:bg-slate-700 text-teal-400 px-2.5 py-1 rounded-lg text-[10px] font-bold">
+                            <i class="fa-solid fa-eye"></i> Preview
+                        </button>
+                        <button onclick="downloadDoc('${d.id}')" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-lg text-[10px] font-bold">
+                            <i class="fa-solid fa-download"></i> Download
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            window.vaultDocsStore = docs;
+        }
+
+        window.previewDoc = function(docId) {
+            const item = (window.vaultDocsStore || []).find(d => d.id === docId);
+            if (!item) return;
+
+            document.getElementById('preview-title').innerText = item.title;
+            const container = document.getElementById('preview-content');
+
+            if (item.fileType.startsWith('image/')) {
+                container.innerHTML = `<img src="${item.fileData}" class="max-h-[50vh] mx-auto rounded-lg object-contain">`;
+            } else if (item.fileType === 'text/plain') {
+                const text = atob(item.fileData.split(',')[1] || '');
+                container.innerHTML = `<pre class="text-left text-xs text-slate-300 font-mono whitespace-pre-wrap">${escapeHtml(text)}</pre>`;
+            } else {
+                container.innerHTML = `
+                    <div class="py-8 space-y-3">
+                        <i class="fa-solid fa-file-pdf text-amber-400 text-5xl"></i>
+                        <p class="text-xs text-slate-300 font-bold">${escapeHtml(item.fileName)}</p>
+                        <p class="text-[10px] text-slate-500">Binary document format (${item.fileType}). Direct preview not supported, click below to download.</p>
+                        <button onclick="downloadDoc('${item.id}')" class="bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs">
+                            <i class="fa-solid fa-download"></i> Download File
+                        </button>
+                    </div>
+                `;
+            }
+
+            document.getElementById('modal-doc-preview').classList.remove('hidden');
+        };
+
+        window.closePreviewModal = function() {
+            document.getElementById('modal-doc-preview').classList.add('hidden');
+        };
+
+        window.downloadDoc = function(docId) {
+            const item = (window.vaultDocsStore || []).find(d => d.id === docId);
+            if (!item || !item.fileData) return;
+
+            const link = document.createElement('a');
+            link.href = item.fileData;
+            link.download = item.fileName || `${item.title}.dat`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast(`Downloading file: ${item.fileName}`, "success");
+        };
+
+        window.handleCreateBroadcast = async function(e) {
+            e.preventDefault();
+            const title = document.getElementById('broadcast-title').value.trim();
+            const priority = document.getElementById('broadcast-priority').value;
+            const content = document.getElementById('broadcast-content').value.trim();
+
+            try {
+                const notice = {
+                    title,
+                    priority,
+                    content,
+                    author: currentUserData.name,
+                    createdAt: new Date().toISOString(),
+                    formattedDate: new Date().toLocaleString()
+                };
+
+                await addDoc(getPublicColl('broadcasts'), notice);
+                showToast("Announcement published to Notice Board!", "success");
+                document.getElementById('broadcast-title').value = '';
+                document.getElementById('broadcast-content').value = '';
+            } catch (err) {
+                showToast("Failed to post notice: " + err.message, "error");
+            }
+        };
+
+        function renderBroadcasts(notices) {
+            const feed = document.getElementById('broadcasts-feed');
+            if (notices.length === 0) {
+                feed.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-4">No active announcements.</p>`;
+                return;
+            }
+
+            feed.innerHTML = notices.map(n => {
+                const tagColor = n.priority === 'Urgent' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                                 n.priority === 'Important' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
+                                 'bg-teal-500/20 text-teal-400 border-teal-500/30';
+
+                const isAdmin = currentUserData && currentUserData.role === 'admin';
+
+                return `
+                    <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${tagColor}">${n.priority || 'NOTICE'}</span>
+                            <span class="text-[10px] text-slate-500">${n.formattedDate || 'Recently'}</span>
+                        </div>
+                        <h4 class="text-sm font-bold text-white">${escapeHtml(n.title)}</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">${escapeHtml(n.content)}</p>
+                        <div class="flex justify-between items-center pt-2 border-t border-slate-800/80 text-[10px] text-slate-500">
+                            <span>Posted by: ${escapeHtml(n.author)}</span>
+                            ${isAdmin ? `<button onclick="deleteBroadcast('${n.id}')" class="text-red-400 hover:underline"><i class="fa-solid fa-trash"></i> Delete</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.deleteBroadcast = async function(id) {
+            try {
+                await deleteDoc(getPublicDoc('broadcasts', id));
+                showToast("Notice deleted.", "info");
+            } catch (err) {
+                showToast("Error deleting notice: " + err.message, "error");
+            }
+        };
+
+        function renderAttendanceLogs(logs) {
+            const body = document.getElementById('attendance-list-body');
+            if (logs.length === 0) {
+                body.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500 italic">No attendance activity logged yet.</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = logs.map(log => {
+                const badgeStyle = log.isLateOvernight ? 
+                    'bg-red-500/20 text-red-400 border-red-500/30' : 
+                    'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+
+                return `
+                    <tr class="hover:bg-slate-900/50">
+                        <td class="p-3 font-semibold text-white">${escapeHtml(log.userName || 'Unknown')} <span class="text-[10px] text-slate-500 font-normal">(${escapeHtml(log.userEmail || '-')})</span></td>
+                        <td class="p-3 uppercase text-[10px] font-bold ${log.role === 'admin' ? 'text-amber-400' : 'text-teal-400'}">${log.role || 'EMPLOYEE'}</td>
+                        <td class="p-3 text-slate-300">${log.formattedTime || log.timestamp}</td>
+                        <td class="p-3">
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${badgeStyle}">${log.statusTag}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            ensureMasterAdminSeeded();
+            const saved = sessionStorage.getItem('susanta_portal_user');
+            if (saved) {
+                try {
+                    currentUserData = JSON.parse(saved);
+                    renderLoggedInState();
+                } catch (e) {
+                    renderLoggedOutState();
+                }
+            } else {
+                renderLoggedOutState();
+            }
+        });
+    </script>
+</body>
+</html>
